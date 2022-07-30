@@ -27,7 +27,7 @@ type: text/vnd.tiddlywiki
 .context-menu > ul > li > a {
   font: inherit;
   border: 0;
-  padding: 4px 14px 4px 10px;
+  padding: 2px 12px 2px 8px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -67,7 +67,7 @@ type: text/vnd.tiddlywiki
 
 ul .menu-separator {
     border-bottom: 1px solid <<colour dropdown-border>>;
-    margin-bottom: 7px;
-    padding-bottom: 7px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 
