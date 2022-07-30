@@ -1,9 +1,8 @@
 created: 20220725150446044
-modified: 20220726165539686
+modified: 20220729210033454
 tags: $:/tags/Stylesheet
 title: $:/plugins/ahanniga/context-menu/styles.css
 type: text/vnd.tiddlywiki
-
 
 
 .context-menu {
@@ -36,6 +35,11 @@ type: text/vnd.tiddlywiki
   text-decoration: unset;
   color: <<colour foreground>>;
   font-weight: 500;
+  transition: 0.3s linear;
+  -webkit-transition: 0.3s linear;
+  -moz-transition: 0.3s linear;
+  -ms-transition: 0.3s linear;
+  -o-transition: 0.3s linear;
 }
 
 .context-menu > ul > li > a:hover {
@@ -59,5 +63,11 @@ type: text/vnd.tiddlywiki
     width: 13px;
     margin-right: 9px;
     height: 13px;
+}
+
+ul .menu-separator {
+    border-bottom: 1px solid <<colour dropdown-border>>;
+    margin-bottom: 7px;
+    padding-bottom: 7px;
 }
 

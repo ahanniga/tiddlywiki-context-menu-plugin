@@ -8,10 +8,29 @@ This widgets implements context menus to tiddlers
 
 (function () {
 
+  var sanitize = function (string) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match)=>(map[match]));
+  };
+
+  var getField = function(tid, field, dflt) {
+    if(!tid || !tid.fields || !tid.fields[field]) {
+      return dflt;
+    }
+    return tid.fields[field];
+  };
+
   var htmlToElement = function (html) {
     var template = document.createElement('template');
-    html = html.trim();
-    template.innerHTML = html;
+    template.innerHTML = html.trim();
     return template.content.firstChild;
   }
 
@@ -26,7 +45,6 @@ This widgets implements context menus to tiddlers
 
   ContextListener.prototype.render = function (parent, nextSibling) {
     this.parentDomNode = parent;
-    this.execute();
     var self = this;
     parent.addEventListener("contextmenu", function (event) { self.contextmenu.call(self, event) });
     document.onclick = this.hideMenu;
@@ -34,8 +52,12 @@ This widgets implements context menus to tiddlers
 
   ContextListener.prototype.contextmenu = function (event) {
     var self = this;
-    event.preventDefault();
     var menu = document.getElementById("contextMenu");
+
+    if(getSelection().toString().trim().length > 0) {
+      // User has selected text, so don't trigger this menu
+      return true;
+    }
 
     if (menu == null) {
       this.document.body.appendChild(htmlToElement(template));
@@ -44,14 +66,26 @@ This widgets implements context menus to tiddlers
     }
     menu.innerHTML = "";
 
-    var contextMenuOptions = $tw.wiki.getTiddlerText("$:/plugins/ahanniga/context-menu/options");
     var menuHtml = ["<ul>"];
-    var options = JSON.parse(contextMenuOptions)["context-menu"];
-    for (var index = 0; index < options.length; index++) {
-      var icon = $tw.wiki.getTiddlerText(options[index].icon);
-      var tid = event.currentTarget.getAttribute("data-tiddler-title");
-      menuHtml.push(`<li><a action="${options[index].action}" id="action-${index}" tid="${tid}" href="">${icon} ${options[index].name}</a></li>`);
+    var titles = $tw.wiki.getTiddlersWithTag("$:/tags/tiddlercontextmenu");
+    var label, action, icon, tid, targ, text, separator;
+
+    for(var a = 0; a < titles.length; a++) {
+      tid = $tw.wiki.getTiddler(titles[a]);
+      text = sanitize(getField(tid, "text", "hide"));
+
+      if(text !== "show") {
+        continue;
+      }
+
+      label = sanitize(getField(tid, "caption", "Unlabelled Option"));
+      action = sanitize(getField(tid, "tm-message", "tm-dummy"));
+      icon = $tw.wiki.getTiddlerText(getField(tid, "icon", "$:/core/images/blank"));
+      targ = event.currentTarget.getAttribute("data-tiddler-title");
+      separator = tid.fields["separate-after"] === undefined ? "" : "menu-separator";
+      menuHtml.push(`<li class="${separator}"><a action="${action}" targ="${targ}" href="#!">${icon} ${label}</a></li>`);
     }
+    
     menuHtml.push("</ul>");
     menu.append(htmlToElement(menuHtml.join("")))
 
@@ -63,34 +97,39 @@ This widgets implements context menus to tiddlers
       menu.style.top = event.pageY + "px";
     }
 
+    event.preventDefault();
     return false;
   };
 
   ContextListener.prototype.menuClicked = function (event) {
     var action = event.target.getAttribute("action");
-    var tid = event.target.getAttribute("tid");
-    var stid, state, text;
-    event.preventDefault();
+    var targ = event.target.getAttribute("targ");
+    var tid, stid, state, text;
+    this.hideMenu();
 
     switch (action) {
       case "tm-fold-tiddler":
-        stid = `$:/state/folded/${tid}`;
+        stid = `$:/state/folded/${targ}`;
         state = $tw.wiki.getTiddlerText(stid, "show") === "show" ? "hide" : "show";
         $tw.wiki.setText(stid, "text", null, state);
         break;
       case "tm-copy-to-clipboard":
-        text = $tw.wiki.getTiddlerText(tid);
+        text = $tw.wiki.getTiddlerText(targ);
         this.dispatchEvent({ type: action, param: text });
         break;
-
+      case "tm-print":
+        this.dispatchEvent({ type: action, event: event });
+        break;
+      case "tm-unfold-all-tiddlers":
+        this.dispatchEvent({ type: action, param: targ, foldedStatePrefix: "$:/state/folded/" });
+        break;
+        
       default:
-        this.dispatchEvent({ type: action, param: tid });
+        this.dispatchEvent({ type: action, param: targ });
     }
 
+    event.preventDefault();
     return false;
-  };
-
-  ContextListener.prototype.execute = function () {
   };
 
   ContextListener.prototype.refresh = function (changedTiddlers) {
