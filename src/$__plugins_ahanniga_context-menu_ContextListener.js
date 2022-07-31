@@ -104,7 +104,7 @@ This widgets implements context menus to tiddlers
     ContextListener.prototype.menuClicked = function (event) {
         var action = event.target.getAttribute("action");
         var targ = event.target.getAttribute("targ");
-        var tid, stid, state, text;
+        var tid, stid, state, text, ptid;
         this.hideMenu();
 
         switch (action) {
@@ -122,6 +122,19 @@ This widgets implements context menus to tiddlers
                 break;
             case "tm-unfold-all-tiddlers":
                 this.dispatchEvent({ type: action, param: targ, foldedStatePrefix: "$:/state/folded/" });
+                break;
+            case "sp-print-river":
+                ptid = $tw.wiki.getTiddler("$:/PrintList");
+                var list = getField(ptid, "list");
+                if(Array.isArray(list) && list.indexOf(targ) < 0) {
+                    var curEntries = [];
+                    for(a = 0; a < list.length; a++) {
+                        curEntries.push(list[a]);
+                    }
+                    curEntries.push(targ);
+                    $tw.wiki.setText("$:/PrintList", "list", 0, curEntries);
+                }
+                $tw.rootWidget.dispatchEvent({ type: 'tm-open-window', param: '$:/plugins/BTC/PrintRiver/ui/Templates/PrintRiver' });
                 break;
 
             default:

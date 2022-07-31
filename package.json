@@ -1,6 +1,6 @@
 {
   "name": "tiddlywiki-context-menu-plugin",
-  "version": "0.5.0","description": "Configurable context menus for tiddlers","license": "MIT",
+  "version": "0.6.0","description": "Configurable context menus for tiddlers","license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/ahanniga/tiddlywiki-context-menu-plugin"
