@@ -124,16 +124,16 @@ This widgets implements context menus to tiddlers
                 this.dispatchEvent({ type: action, param: targ, foldedStatePrefix: "$:/state/folded/" });
                 break;
             case "sp-print-river":
+                var curEntries = [];
                 ptid = $tw.wiki.getTiddler("$:/PrintList");
                 var list = getField(ptid, "list");
                 if(Array.isArray(list) && list.indexOf(targ) < 0) {
-                    var curEntries = [];
                     for(a = 0; a < list.length; a++) {
                         curEntries.push(list[a]);
                     }
-                    curEntries.push(targ);
-                    $tw.wiki.setText("$:/PrintList", "list", 0, curEntries);
                 }
+                curEntries.push(targ);
+                $tw.wiki.setText("$:/PrintList", "list", 0, curEntries);
                 $tw.rootWidget.dispatchEvent({ type: 'tm-open-window', param: '$:/plugins/BTC/PrintRiver/ui/Templates/PrintRiver' });
                 break;
 
