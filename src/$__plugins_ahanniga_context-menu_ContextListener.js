@@ -21,13 +21,6 @@ This widgets implements context menus to tiddlers
         return string.replace(reg, (match) => (map[match]));
     };
 
-    var getField = function (tid, field, dflt) {
-        if (!tid || !tid.fields || !tid.fields[field]) {
-            return dflt;
-        }
-        return tid.fields[field];
-    };
-
     var htmlToElement = function (html) {
         var template = document.createElement('template');
         template.innerHTML = html.trim();
@@ -72,15 +65,15 @@ This widgets implements context menus to tiddlers
 
         for (var a = 0; a < titles.length; a++) {
             tid = $tw.wiki.getTiddler(titles[a]);
-            text = sanitize(getField(tid, "text", "hide"));
+            text = sanitize(tid.getFieldString("text", "hide"));
 
             if (text !== "show") {
                 continue;
             }
 
-            label = sanitize(getField(tid, "caption", "Unlabelled Option"));
-            action = sanitize(getField(tid, "tm-message", "tm-dummy"));
-            icon = $tw.wiki.getTiddlerText(getField(tid, "icon", "$:/core/images/blank"));
+            label = sanitize(tid.getFieldString("caption", "Unlabelled Option"));
+            action = sanitize(tid.getFieldString("tm-message", "tm-dummy"));
+            icon = $tw.wiki.getTiddlerText(tid.getFieldString("icon", "$:/core/images/blank"));
             targ = event.currentTarget.getAttribute("data-tiddler-title");
             separator = tid.fields["separate-after"] === undefined ? "" : "menu-separator";
             menuHtml.push(`<li class="${separator}"><a action="${action}" targ="${targ}" href="#!">${icon} ${label}</a></li>`);
@@ -126,10 +119,12 @@ This widgets implements context menus to tiddlers
             case "sp-print-river":
                 var curEntries = [];
                 ptid = $tw.wiki.getTiddler("$:/PrintList");
-                var list = getField(ptid, "list");
-                if(Array.isArray(list) && list.indexOf(targ) < 0) {
-                    for(a = 0; a < list.length; a++) {
-                        curEntries.push(list[a]);
+                if(ptid !== undefined) {
+                    var list = ptid.getFieldList("list");
+                    if(Array.isArray(list) && list.indexOf(targ) < 0) {
+                        for(a = 0; a < list.length; a++) {
+                            curEntries.push(list[a]);
+                        }
                     }
                 }
                 curEntries.push(targ);
