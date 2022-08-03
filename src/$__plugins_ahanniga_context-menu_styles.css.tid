@@ -8,7 +8,7 @@ type: text/vnd.tiddlywiki
 .context-menu {
     position: absolute;
 		min-width: 180px;
-    z-index: 99;
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     background-color: <<colour dropdown-background>>;
