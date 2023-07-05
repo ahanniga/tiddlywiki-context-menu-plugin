@@ -132,6 +132,7 @@ This widgets implements context menus to tiddlers
                 $tw.rootWidget.dispatchEvent({ type: 'tm-open-window', param: '$:/plugins/BTC/PrintRiver/ui/Templates/PrintRiver' });
                 break;
             case "tm-new-here":
+                targ = "[[" + targ + "]]";
                 this.dispatchEvent({ type: "tm-new-tiddler", paramObject: {tags: targ}});
                 break;
             default:
