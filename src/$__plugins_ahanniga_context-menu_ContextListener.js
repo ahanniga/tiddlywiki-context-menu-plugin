@@ -27,6 +27,28 @@ This widgets implements context menus to tiddlers
         return template.content.firstChild;
     }
 
+    var parseParameters = function(src) {
+        let paramMatcher = /\\parameters\s*\((.*?)\)/;
+        let paramMatch = src.match(paramMatcher);
+        let parameters = {};
+        if(paramMatch) {
+            paramMatch[1].split(",").forEach(pair => {
+                let [key, value] = pair.split(":");
+                parameters[key.trim()] = value.replace(/["']/g, "").trim();
+            });
+
+            // Remove the \parameters block from the src
+            src = src.replace(paramMatcher, '').trim();
+        }
+
+        Object.keys(parameters).forEach(param => {
+            let re = new RegExp("<<"+param+">>", "g");
+            src = src.replace(re, parameters[param]);
+        });
+
+        return src;
+    }
+
     var Widget = require("$:/core/modules/widgets/widget.js").widget;
     var template = `<div id="contextMenu" class="context-menu" style="display: none; z-order: 9999;"></div>`;
 
@@ -74,6 +96,7 @@ This widgets implements context menus to tiddlers
             label = sanitize(tid.getFieldString("caption", "Unlabelled Option"));
             action = sanitize(tid.getFieldString("tm-message", "tm-dummy"));
             icon = $tw.wiki.getTiddlerText(tid.getFieldString("icon", "$:/core/images/blank"));
+            icon = parseParameters(icon);
             targ = event.currentTarget.getAttribute("data-tiddler-title");
             separator = tid.fields["separate-after"] === undefined ? "" : "menu-separator";
             menuHtml.push(`<li class="${separator}"><a action="${action}" targ="${targ}" href="#!">${icon} ${label}</a></li>`);
@@ -132,7 +155,6 @@ This widgets implements context menus to tiddlers
                 $tw.rootWidget.dispatchEvent({ type: 'tm-open-window', param: '$:/plugins/BTC/PrintRiver/ui/Templates/PrintRiver' });
                 break;
             case "tm-new-here":
-                targ = "[[" + targ + "]]";
                 this.dispatchEvent({ type: "tm-new-tiddler", paramObject: {tags: targ}});
                 break;
             default:
@@ -157,3 +179,4 @@ This widgets implements context menus to tiddlers
     exports.contextMenu = ContextListener;
 
 })();
+
