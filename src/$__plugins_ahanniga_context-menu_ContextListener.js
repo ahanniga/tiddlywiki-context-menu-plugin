@@ -31,10 +31,12 @@ This widgets implements context menus to tiddlers
         let paramMatcher = /\\parameters\s*\((.*?)\)/;
         let paramMatch = src.match(paramMatcher);
         let parameters = {};
-        if(paramMatch) {
+        if(paramMatch && paramMatch.length > 1) {
             paramMatch[1].split(",").forEach(pair => {
                 let [key, value] = pair.split(":");
-                parameters[key.trim()] = value.replace(/["']/g, "").trim();
+                if(key && value) {
+                  parameters[key.trim()] = value.replace(/["']/g, "").trim();
+                }
             });
 
             // Remove the \parameters block from the src

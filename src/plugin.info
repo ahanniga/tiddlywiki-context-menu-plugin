@@ -2,7 +2,7 @@
   "title": "$:/plugins/ahanniga/context-menu-plugin",
   "description": "Configurable context menus for tiddlers",
   "author": "A Hannigan",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "core-version": ">=5.0.0",
   "source": "https://github.com/ahanniga/tiddlywiki-context-menu-plugin",
   "plugin-type": "plugin",
